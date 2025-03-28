@@ -51,6 +51,9 @@ struct {
 } keyboards[8];
 
 extern uint8_t SHIFT_UP;
+extern void printChar(uint8_t character, uint8_t col, uint8_t row );
+extern void clearScreen();
+extern void printHome();
 
 bool hid_parse_find_bit_item_by_page(hid_report_info_t* report_info_arr, u8 type, u16 page, u8 bit, const hid_report_item_t **item) {
   for(u8 i = 0; i < report_info_arr->num_items; i++) {
@@ -327,7 +330,7 @@ void kb_report_receive(uint8_t modifiers, uint8_t const* report, u16 len) {
 			}
 		}
 	}
-	
+
 	// go over activated non-modifier keys in report and check if they were
 	// already in prev_rpt.
 	for(uint8_t i = 0; i < len; i++) {
@@ -342,28 +345,23 @@ void kb_report_receive(uint8_t modifiers, uint8_t const* report, u16 len) {
 			// send make if key was in the current report the first time
 			if(make) {
 				uint8_t keycode = report[i];
-				if (keycode == 0x45) { // reset button logic
-					uint8_t byte_to_send = keycode_to_goauld[keycode];
-					putchar(byte_to_send);
-					sleep_ms(40);
-					putchar(143);
-					sleep_ms(40);
-					putchar(byte_to_send);
-					sleep_ms(40);
-					putchar(143);
-				}
+				     if (keycode == 0x45) putchar(0x00); // F12 button - OSD
+				else if (keycode == 0x44) putchar(0x04); // F11 button - SCANLINES
+				else if (keycode == 0x43) printHome();   // F10 button - print HOME
+				else if (keycode == 0x42) clearScreen(); // F9  button - clear OSD
 				else if (keycode < 128) {
-					bool shift = (modifiers & 0x22) != 0; // Left or Right Shift
-					if (shift) {
-						putchar((uint8_t)2);
-						sleep_ms(40);
-						putchar((uint8_t)143);
-					} else { 
-						uint8_t byte_to_send = keycode_to_goauld[keycode];
-						putchar(byte_to_send);
-						sleep_ms(40);
-						putchar((uint8_t)143);
-					}
+                    // bool shift = (modifiers & 0x22) != 0; // Left or Right Shift
+    			    // ((modifiers & 0x22) != 0) ? putchar(0x05) : putchar(0x01); // Left or Right Shift
+                    // if (shift) putchar(0x05);
+    				// sleep_ms(1);
+                    putchar(0x01);
+					sleep_ms(5);
+                    uint8_t byte_to_send = keycode_to_goauld[keycode];
+					putchar(byte_to_send);
+					sleep_ms(40);
+					putchar(0x01);
+					sleep_ms(5);
+					putchar((uint8_t)143);
 				}
 			}
 		}

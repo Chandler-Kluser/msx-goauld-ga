@@ -4,6 +4,7 @@
 #include "bsp/board_api.h"
 #include <stdint.h>
 #include "keymaps.h"
+#include "charset.h"
 
 typedef int8_t s8;
 typedef int16_t s16;

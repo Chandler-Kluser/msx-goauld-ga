@@ -14,6 +14,7 @@ set(FAMILY rp2040)
 add_executable(goauld_friend
     src/main.c
     src/usbin.c
+    src/dialect.c
 )
 
 target_include_directories(goauld_friend PRIVATE
