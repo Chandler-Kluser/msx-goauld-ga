@@ -1,6 +1,6 @@
-# MSX Goa'uld Friend
+# MSX Goa'uld Guardian Angel
 
-The MSX Goa'uld Guardian Angel for hard tasks. Made with [RP2040 Zero](https://www.waveshare.com/wiki/RP2040-Zero). 
+The MSX Goa'uld Guardian Angel for hard tasks. Made with [RP2040 Zero](https://www.waveshare.com/wiki/RP2040-Zero).
 
 Make sure to power Raspberry Pi Pico to MSX 5V power supply to Vout pin.
 
@@ -13,7 +13,7 @@ Make sure to power Raspberry Pi Pico to MSX 5V power supply to Vout pin.
 | RP2040 UART TX           | UART TX    | GPIO 0    | Connect to RX of Tang Nano 20k   |
 | RP2040 UART RX           | UART RX    | GPIO 1    | Connect to TX of Tang Nano 20k   |
 
-*Note*: built for [waveshare RP2040 Zero](https://www.waveshare.com/w/upload/2/2b/RP2040-Zero-details-7.jpg), builtin LED is GPIO16. Both FPGA and RP2040 must compatible firmwares together.
+*Note*: built for [waveshare RP2040 Zero](https://www.waveshare.com/w/upload/2/2b/RP2040-Zero-details-7.jpg), builtin LED is GPIO16. Both FPGA and RP2040 must have compatible firmwares together.
 
 ## Build Instructions
 
@@ -33,6 +33,8 @@ rm -rf * && cmake -DFAMILY=rp2040 -DBOARD=raspberry_pi_pico -G Ninja .. && cmake
 - [x] OSD toggle button
 - [x] USB Keyboard basic functionalities
 - [x] USB Keyboard
+- [ ] Local Firmware Switching
+- [ ] Persistent Configuration Files
 - [ ] USB Gamepad
 - [ ] Reset button (needs MSX external mod in reset wire, WIP)
 - [ ] USB Floppy Drives
@@ -42,4 +44,4 @@ rm -rf * && cmake -DFAMILY=rp2040 -DBOARD=raspberry_pi_pico -G Ninja .. && cmake
 - [ ] WiFi USB adapters
 - [ ] BIOS Switching
 - [ ] TF Support
-- [ ] OSD Control over PSG default control ports pins (needs OSD dedicated button)
+- [ ] OSD Control over PSG default control ports pins (needs OSD dedicated button or predefined shortcut)
