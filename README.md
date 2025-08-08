@@ -1,5 +1,8 @@
 # MSX Goa'uld Guardian Angel
 
+> **⚠️🚨 Warning 🚨⚠️**  
+> For firmware 090 check 090 branch
+
 The MSX Goa'uld Guardian Angel for hard tasks. Made with [RP2040 Zero](https://www.waveshare.com/wiki/RP2040-Zero).
 
 Make sure to power Raspberry Pi Pico to MSX 5V power supply to Vout pin.
