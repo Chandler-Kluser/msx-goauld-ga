@@ -3,9 +3,7 @@
 > **⚠️🚨 Warning 🚨⚠️**  
 > For firmware 090 check 090 branch
 
-The MSX Goa'uld Guardian Angel for hard tasks. Made with [RP2040 Zero](https://www.waveshare.com/wiki/RP2040-Zero).
-
-Make sure to power Raspberry Pi Pico to MSX 5V power supply to Vout pin.
+The MSX Goa'uld Guardian Angel for hard tasks.
 
 ## Wiring
 
@@ -16,7 +14,10 @@ Make sure to power Raspberry Pi Pico to MSX 5V power supply to Vout pin.
 | RP2040 UART TX           | UART TX    | GPIO 0    | Connect to RX of Tang Nano 20k   |
 | RP2040 UART RX           | UART RX    | GPIO 1    | Connect to TX of Tang Nano 20k   |
 
-*Note*: built for [waveshare RP2040 Zero](https://www.waveshare.com/w/upload/2/2b/RP2040-Zero-details-7.jpg), builtin LED is GPIO16. Both FPGA and RP2040 must have compatible firmwares together.
+- 090 and 080 wirings are not compatible
+- built only for [waveshare RP2040 Zero](https://www.waveshare.com/w/upload/2/2b/RP2040-Zero-details-7.jpg), builtin LED is GPIO16
+- both FPGA and RP2040 must have compatible firmwares together
+- Make sure to power Raspberry Pi Pico to MSX 5V power supply to Vout (or Vbus) pin
 
 ## Build Instructions
 
@@ -43,8 +44,5 @@ rm -rf * && cmake -DFAMILY=rp2040 -DBOARD=raspberry_pi_pico -G Ninja .. && cmake
 - [ ] USB Floppy Drives
 - [ ] USB Mass Storage
 - [ ] Ethernet USB adapters
-- [ ] Bluetooth USB adapters
 - [ ] WiFi USB adapters
 - [ ] BIOS Switching
-- [ ] TF Support
-- [ ] OSD Control over PSG default control ports pins (needs OSD dedicated button or predefined shortcut)
