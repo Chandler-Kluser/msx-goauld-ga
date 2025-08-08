@@ -1,7 +1,7 @@
 # MSX Goa'uld Guardian Angel
 
 > **⚠️🚨 Warning 🚨⚠️**  
-> For firmware 080 check 080 branch
+> For firmware 080 check master branch
 
 MSX Goa'uld Guardian Angel for USB Gamepad use.
 
