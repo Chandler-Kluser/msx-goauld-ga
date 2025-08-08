@@ -1,84 +1,63 @@
+#include <stdlib.h>
 #include <stdio.h>
-#include "pico/stdlib.h"
-#include "pico/multicore.h"
-#include "hardware/timer.h"
+#include <string.h>
+#include "hardware/gpio.h"
+#include "hardware/uart.h"
+#include <pico/multicore.h>
+
 #include "bsp/board_api.h"
-#include "tusb_config.h"
-#include "class/hid/hid_host.h"
+#include "tusb.h"
+#include "config.h"
 
-// ============== Defines ==============
+#ifdef RP2040_ZERO
+#include "hardware/pio.h"
+#include "ws2812.pio.h"
 
-#define KEYBOARD_REPORT_LEN 6
-// WS2812 LED FOR RP2040 ZERO
-#define LED_PIN 16
-// LED for Raspberry Pi Pico
-// #define LED_PIN 25
-#define BUF_COUNT   4
-
-// ================= headers ===================
-
-void led_blinking_task(void);
-void print_device_descriptor(tuh_xfer_t* xfer);
-
-// ============== Global Variables ==============
-
-tusb_desc_device_t desc_device;
-uint8_t buf_pool[BUF_COUNT][64];
-uint8_t buf_owner[BUF_COUNT] = { 0 };
-uint8_t isMounted = 0;
-uint8_t kb_leds = 0;
-uint8_t kb_modifiers = 0;
-uint8_t kb_keys[120] = {0};
-uint8_t SHIFT_UP = 0;
-
-// ============== Function to run on Core 1 ==============
-
-void core1_entry() {
-    while (1) {
-        // gpio_put(LED_PIN, 1);  // Turn LED on
-        sleep_ms(200);         // Wait 500 ms
-        // gpio_put(LED_PIN, 0);  // Turn LED off
-        // sleep_ms(800);         // Wait 500 ms
-    }
+void put_pixel(uint32_t pixel_grb) {
+    pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
 }
 
-// ============== Timer Callback ==============
-
-bool toggle_led_callback(repeating_timer_t *timer) {
-    gpio_put(LED_PIN, isMounted);
-    return true;
+uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
+    return ((uint32_t)(g) << 16) | ((uint32_t)(r) << 8) | (uint32_t)(b);
 }
-
-// ============== Main ==============
-
-int main() {
-    stdio_init_all();
-
-    tusb_init();
-
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
-
-    // Launch Core 1
-    multicore_launch_core1(core1_entry);
-
-    repeating_timer_t timer;
-    add_repeating_timer_ms(5, toggle_led_callback, NULL, &timer);
-
-#ifdef DEBUG
-    printf("Firmware Boot Done\n");
 #endif
 
-    // Firmware boot LED output
-    gpio_put(LED_PIN, 1);
-    sleep_ms(200);
-    gpio_put(LED_PIN, 0);
+// Shared SRAM buffer
+__attribute__((section(".ram")))
+volatile uint8_t shared_buffer = 0;
 
-    tuh_hid_set_default_protocol(HID_PROTOCOL_REPORT);
+extern void tx_task_od();
 
-    while (1) {
-        tuh_task();
-    }
+int main(void) {
+    board_init();
 
-    return 0;
+    // initialise UART
+    uart_init(UART_ID, BAUD_RATE);
+    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+
+#ifdef RP2040_ZERO
+    PIO pio = pio0;
+    int sm = 0;
+    uint offset = pio_add_program(pio, &ws2812_program);
+    ws2812_program_init(pio, sm, offset, LED_PIN, 800000, false);
+#else
+// initialize LED
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+#endif
+
+    // init host stack on configured roothub port
+    tusb_rhport_init_t host_init = {
+        .role = TUSB_ROLE_HOST,
+        .speed = TUSB_SPEED_AUTO
+    };
+
+    tusb_init(BOARD_TUH_RHPORT, &host_init);
+
+    // endless task for Core 1
+    multicore_launch_core1(tx_task_od);
+
+    while (1) tuh_task();
+
 }

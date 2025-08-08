@@ -1,48 +1,45 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.20)
 
 include(src/pico_sdk_import.cmake)
 
-project(goauld_friend C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+project(msx-goauld-ga C CXX ASM)
 
 pico_sdk_init()
 
-set(FAMILY rp2040)
+# Define RP2040_ZERO as a cache variable
+set(RP2040_ZERO OFF CACHE BOOL "Enable RP2040_ZERO support")
+if(RP2040_ZERO)
+    add_definitions(-DRP2040_ZERO=1)
+endif()
 
-add_executable(goauld_friend
-    src/main.c
-    src/usbin.c
-    src/dialect.c
+add_executable(${PROJECT_NAME}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tusb_xinput_host.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/xinput_host.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/od_tx_logic.c
 )
 
-target_include_directories(goauld_friend PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/inc
-    ${CMAKE_CURRENT_LIST_DIR}/src
-    ${PICO_SDK_PATH}/src
+pico_generate_pio_header(msx-goauld-ga ${CMAKE_CURRENT_LIST_DIR}/src/ws2812.pio)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
-target_link_libraries(goauld_friend
+target_link_libraries(${PROJECT_NAME} PRIVATE
     pico_stdlib
     tinyusb_host
+    hardware_pio
     tinyusb_board
     pico_multicore
 )
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Og")
-    target_compile_definitions(goauld_friend PRIVATE DEBUG)
 else()
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
 endif()
 
-target_compile_definitions(goauld_friend PRIVATE
-    CFG_TUSB_MCU=OPT_MCU_RP2040
-    PICO_PLATFORM=rp2040
-    DEBUG_PORT=Serial1
-    DEBUG_BAUDRATE=115200
-    DEBUG_RP2040_PORT=DEBUG_PORT
-)
+pico_enable_stdio_usb(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
 
-pico_add_extra_outputs(goauld_friend)
+pico_add_extra_outputs(${PROJECT_NAME})
